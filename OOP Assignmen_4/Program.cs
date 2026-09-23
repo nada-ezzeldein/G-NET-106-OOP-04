@@ -22,26 +22,26 @@
             }
         }
 
-        #region Ceate a Shipment class Part2
-        public class Shipment
+        #region Create an Abstract Shipment class Part2
+        public abstract class Shipment
         {
             private string trackingCode;
             private string description;
-            private double weight;
+            private decimal weight;
             private decimal deliveryFee;
 
-            public Shipment(string trackingCode, string description, double weight, decimal deliveryFee, DeliveryAddress destination)
+            public Shipment(string trackingCode, string description, decimal weight, decimal deliveryFee, DeliveryAddress destination)
             {
 
                 this.trackingCode = string.IsNullOrWhiteSpace(trackingCode) ? "UNVALID" : trackingCode;
                 this.description = string.IsNullOrWhiteSpace(description) ? "NVALID" : description;
-                this.weight = weight > 0 ? weight : 1.0;
+                this.weight = weight > 0 ? weight : 1.0m;
                 this.deliveryFee = deliveryFee > 0 ? deliveryFee : 10.0m;
                 Destination = destination;
             }
 
             public Shipment(string trackingCode)
-            : this(trackingCode, "Unknown", 1.0, 50.0m, new DeliveryAddress("Default City", "Default St", 1))
+            : this(trackingCode, "Unknown", 1.0m, 50.0m, new DeliveryAddress("Default City", "Default St", 1))
             {
             }
 
@@ -69,7 +69,7 @@
                 }
             }
 
-            public double Weight
+            public decimal Weight
             {
                 get { return weight; }
                 set
@@ -98,7 +98,7 @@
             {
                 get
                 {
-                    return deliveryFee + ((decimal)weight * 5m);
+                    return deliveryFee + (weight * 5m);
                 }
             }
 
@@ -110,7 +110,7 @@
                 }
             }
 
-            public void UpdateWeight(double newWeight)
+            public void UpdateWeight(decimal newWeight)
             {
                 if (newWeight > 0)
                 {
@@ -118,9 +118,9 @@
                 }
             }
 
-            public void UpdateWeight(double baseWeight, double extraPackingWeight)
+            public void UpdateWeight(decimal baseWeight, decimal extraPackingWeight)
             {
-                double totalWeight = baseWeight + extraPackingWeight;
+                decimal totalWeight = baseWeight + extraPackingWeight;
                 if (totalWeight > 0)
                 {
                     weight = totalWeight;
