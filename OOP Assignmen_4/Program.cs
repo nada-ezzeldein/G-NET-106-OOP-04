@@ -295,7 +295,7 @@
             }
             public string GetTrackingStatus()
             {
-                return $"Standard Shipment [{TrackingCode}] is currently In Transit.";
+                return $"Shipment {TrackingCode} is Ready.";
             }
 
             public decimal CalculateInsurance()
@@ -348,7 +348,7 @@
             }
             public string GetTrackingStatus()
             {
-                return $"Express Shipment [{TrackingCode}] is Out for Delivery.";
+                return $"Shipment {TrackingCode} is Out for Delivery."; 
             }
 
             public decimal CalculateInsurance()
@@ -421,7 +421,7 @@
             }
             public string GetTrackingStatus()
             {
-                return $"International Shipment [{TrackingCode}] is in Customs Clearance at {DestinationCountry}.";
+                return $"Shipment {TrackingCode} has been Delivered."; 
             }
 
             public decimal CalculateInsurance()
