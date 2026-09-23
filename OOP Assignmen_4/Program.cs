@@ -2,6 +2,17 @@
 {
     internal class Program
     {
+        #region Interfaces
+        public interface ITrackable
+        {
+            string GetTrackingStatus();
+        }
+
+        public interface IInsurable
+        {
+            decimal CalculateInsurance();
+        }
+        #endregion
         #region Functions From Last Assignment 
         public struct DeliveryAddress
         {
@@ -94,14 +105,8 @@
             }
 
             public DeliveryAddress Destination { get; set; }
-            public virtual decimal EstimatedCost
-            {
-                get
-                {
-                    return deliveryFee + (weight * 5m);
-                }
-            }
-
+            public abstract decimal EstimatedCost { get; }
+            public abstract void PrintShipment();
             public void UpdateDeliveryFee(decimal newFee)
             {
                 if (newFee > 0)
@@ -126,16 +131,7 @@
                     weight = totalWeight;
                 }
             }
-            public virtual void PrintShipment()
-            {
-                Console.WriteLine($"Tracking Code: {TrackingCode}");
-                Console.WriteLine($"Description: {Description}");
-                Console.WriteLine($"Weight: {Weight}");
-                Console.WriteLine($"Delivery Fee: {DeliveryFee}");
-                Console.WriteLine($"Destination: {Destination.GetFullAddress()}");
-                Console.WriteLine($"Estimated Cost: {EstimatedCost}");
-                Console.WriteLine(new string('-', 30));
-            }
+       
         }
         #endregion
 
@@ -267,9 +263,9 @@
         #endregion
        
         #region Updated StandardShipment Class
-        public class StandardShipment : Shipment
+        public class StandardShipment : Shipment, ITrackable, IInsurable
         {
-            public StandardShipment(string trackingCode, string description, double weight, decimal deliveryFee, DeliveryAddress destination)
+            public StandardShipment(string trackingCode, string description, decimal weight, decimal deliveryFee, DeliveryAddress destination)
                 : base(trackingCode, description, weight, deliveryFee, destination)
             {
             }
@@ -279,15 +275,38 @@
             {
             }
 
+
+            public override decimal EstimatedCost
+            {
+                get
+                {
+                    return DeliveryFee + (Weight * 5m);
+                }
+            }
             public override void PrintShipment()
             {
-                base.PrintShipment();
+                Console.WriteLine($"Tracking Code: {TrackingCode}");
+                Console.WriteLine($"Description: {Description}");
+                Console.WriteLine($"Weight: {Weight}");
+                Console.WriteLine($"Delivery Fee: {DeliveryFee}");
+                Console.WriteLine($"Destination: {Destination.GetFullAddress()}");
+                Console.WriteLine($"Estimated Cost: {EstimatedCost}");
+                Console.WriteLine(new string('-', 30));
+            }
+            public string GetTrackingStatus()
+            {
+                return $"Standard Shipment [{TrackingCode}] is currently In Transit.";
+            }
+
+            public decimal CalculateInsurance()
+            {
+                return EstimatedCost * 0.05m;
             }
         }
         #endregion
 
         #region ExpressShipment Class
-        public class ExpressShipment : Shipment
+        public class ExpressShipment : Shipment, ITrackable, IInsurable
         {
             private decimal extraFee;
 
@@ -303,7 +322,7 @@
                 }
             }
 
-            public ExpressShipment(string trackingCode, string description, double weight, decimal deliveryFee, DeliveryAddress destination, decimal extraFee)
+            public ExpressShipment(string trackingCode, string description, decimal weight, decimal deliveryFee, DeliveryAddress destination, decimal extraFee)
                 : base(trackingCode, description, weight, deliveryFee, destination)
             {
                 ExtraFee = extraFee >= 0 ? extraFee : 0m;
@@ -312,7 +331,7 @@
             {
                 get
                 {
-                    return base.EstimatedCost + ExtraFee;
+                    return DeliveryFee + (Weight * 5m) + ExtraFee;
                 }
             }
 
@@ -327,11 +346,20 @@
                 Console.WriteLine($"Estimated Cost: {EstimatedCost}");
                 Console.WriteLine(new string('-', 30));
             }
+            public string GetTrackingStatus()
+            {
+                return $"Express Shipment [{TrackingCode}] is Out for Delivery.";
+            }
+
+            public decimal CalculateInsurance()
+            {
+                return EstimatedCost * 0.10m;
+            }
         }
         #endregion
 
         #region InternationalShipment Class
-        public class InternationalShipment : Shipment
+        public class InternationalShipment : Shipment, ITrackable, IInsurable
         {
             private string destinationCountry;
             private decimal customsFee;
@@ -360,7 +388,7 @@
                 }
             }
 
-            public InternationalShipment(string trackingCode, string description, double weight, decimal deliveryFee, DeliveryAddress destination, string destinationCountry, decimal customsFee)
+            public InternationalShipment(string trackingCode, string description, decimal weight, decimal deliveryFee, DeliveryAddress destination, string destinationCountry, decimal customsFee)
                 : base(trackingCode, description, weight, deliveryFee, destination)
             {
                 DestinationCountry = string.IsNullOrWhiteSpace(destinationCountry) ? "Unknown" : destinationCountry;
@@ -371,7 +399,7 @@
             {
                 get
                 {
-                    return base.EstimatedCost + CustomsFee;
+                    return DeliveryFee + (Weight * 5m) + CustomsFee;
                 }
             }
 
@@ -391,11 +419,20 @@
                 Console.WriteLine($"Estimated Cost: {EstimatedCost}");
                 Console.WriteLine(new string('-', 30));
             }
+            public string GetTrackingStatus()
+            {
+                return $"International Shipment [{TrackingCode}] is in Customs Clearance at {DestinationCountry}.";
+            }
+
+            public decimal CalculateInsurance()
+            {
+                return (EstimatedCost + CustomsFee) * 0.15m;
+            }
         }
         #region CompletedShipment
         public sealed class CompletedShipment : Shipment
         {
-            public CompletedShipment(string trackingCode, string description, double weight, decimal deliveryFee, DeliveryAddress destination)
+            public CompletedShipment(string trackingCode, string description, decimal weight, decimal deliveryFee, DeliveryAddress destination)
                 : base(trackingCode, description, weight, deliveryFee, destination)
             {
             }
@@ -404,10 +441,23 @@
                 : base(trackingCode)
             {
             }
+            public override decimal EstimatedCost
+            {
+                get
+                {
+                    return DeliveryFee + (Weight * 5m);
+                }
+            }
             public override void PrintShipment()
             {
                 Console.WriteLine("[Status: Completed Shipment]");
-                base.PrintShipment();
+                Console.WriteLine($"Tracking Code: {TrackingCode}");
+                Console.WriteLine($"Description: {Description}");
+                Console.WriteLine($"Weight: {Weight}");
+                Console.WriteLine($"Delivery Fee: {DeliveryFee}");
+                Console.WriteLine($"Destination: {Destination.GetFullAddress()}");
+                Console.WriteLine($"Estimated Cost: {EstimatedCost}");
+                Console.WriteLine(new string('-', 30));
             }
         }
         #endregion
@@ -416,7 +466,7 @@
         #region PriorityInternationalShipment
         public class PriorityInternationalShipment : InternationalShipment
         {
-            public PriorityInternationalShipment(string trackingCode, string description, double weight, decimal deliveryFee, DeliveryAddress destination, string destinationCountry, decimal customsFee)
+            public PriorityInternationalShipment(string trackingCode, string description, decimal weight, decimal deliveryFee, DeliveryAddress destination, string destinationCountry, decimal customsFee)
                 : base(trackingCode, description, weight, deliveryFee, destination, destinationCountry, customsFee)
             {
             }
