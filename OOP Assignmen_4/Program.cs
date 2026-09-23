@@ -353,7 +353,7 @@
 
             public decimal CalculateInsurance()
             {
-                return EstimatedCost * 0.10m;
+                return EstimatedCost * 0.08m;
             }
         }
         #endregion
@@ -426,7 +426,7 @@
 
             public decimal CalculateInsurance()
             {
-                return (EstimatedCost + CustomsFee) * 0.15m;
+                return EstimatedCost * 0.12m;
             }
         }
         #region CompletedShipment
