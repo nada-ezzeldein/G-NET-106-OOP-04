@@ -259,6 +259,17 @@
                     }
                 }
             }
+
+            public void PrintTrackingStatuses()
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    if (shipments[i] is ITrackable trackable)
+                    {
+                        Console.WriteLine(trackable.GetTrackingStatus());
+                    }
+                }
+            }
         }
         #endregion
        
@@ -480,7 +491,28 @@
                 base.PrintShipment();
             }
         }
-        #endregion 
+        #endregion
+
+        #region DeliveryReport Class
+        public static class DeliveryReport
+        {
+            public static void PrintShipment(ITrackable shipment)
+            {
+                if (shipment != null)
+                {
+                    Console.WriteLine(shipment.GetTrackingStatus());
+                }
+            }
+
+            public static void PrintInsurance(IInsurable shipment)
+            {
+                if (shipment != null)
+                {
+                    Console.WriteLine($"Insurance Cost: {shipment.CalculateInsurance()}");
+                }
+            }
+        }
+        #endregion
 
         #region Create DeliveryHelper
         public static class DeliveryHelper
